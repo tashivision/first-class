@@ -1,101 +1,47 @@
-<!-- 1. HEADER (БЕЗ КАНВАСА, Z-INDEX 50)                      -->
-    <!-- ======================================================== -->
-    <header
-      class="fixed top-0 left-0 w-full z-50 h-24 bg-brand-dark/95 backdrop-blur-md border-b border-white/10 transition-all duration-300"
-    >
-      <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between"
-      >
-        <!-- Brand Logo -->
-        <a href="#hero" class="flex items-center gap-3.5 group">
-          <img
-            src="images/First Class Season 2027.svg"
-            alt="First Class Emblem"
-            class="h-10 w-10 sm:h-12 sm:w-12 object-contain group-hover:scale-110 transition-transform drop-shadow-[0_0_12px_rgba(255,115,0,0.6)]"
-          />
-          <img
-            src="images/First Class Logo.png"
-            alt="First Class Logo"
-            class="h-[70px] sm:h-[80px] w-auto object-contain group-hover:opacity-80 transition-opacity"
-          />
-        </a>
+<!-- HEADER for the partner pages (fixed, z-50) -->
+<header class="fixed top-0 left-0 w-full z-50 h-24 bg-brand-dark/95 backdrop-blur-md border-b border-white/10 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
+    <!-- Brand Logo -->
+    <a href="index.html" class="flex items-center gap-3.5 group" aria-label="First Class: start">
+      <img src="images/First Class Season 2027.svg" alt="" class="h-10 w-10 sm:h-12 sm:w-12 object-contain group-hover:scale-110 transition-transform drop-shadow-[0_0_12px_rgba(255,115,0,0.6)]" />
+      <img src="images/First Class Logo.png" alt="First Class" class="h-[70px] sm:h-[80px] w-auto object-contain group-hover:opacity-80 transition-opacity" />
+    </a>
 
-        <!-- Desktop Navigation (same order as the page / presentation) -->
-        <nav class="fc-nav hidden lg:flex items-center gap-6">
-          <a href="#about">Our Journey</a>
-          <a href="#founder">Mike</a>
-          <a href="#values">Wartości</a>
-          <a href="#numbers">Liczby</a>
-          <a href="#packages">Pakiety</a>
-          <a href="#destinations">Destynacje</a>
-          <a href="#atmosphere">Galeria</a>
-        </nav>
+    <!-- Desktop Navigation: one page per topic -->
+    <nav class="fc-nav hidden xl:flex items-center gap-6" aria-label="Strony dla partnerów">
+      <a href="index.html" data-nav="partners">Start</a>
+      <a href="journey.html" data-nav="journey">Our Journey</a>
+      <a href="team.html" data-nav="team">Team</a>
+      <a href="numbers.html" data-nav="numbers">Liczby</a>
+      <a href="brand.html" data-nav="brand">Brand Opportunity</a>
+      <a href="index.html#packages">Pakiety</a>
+    </nav>
 
-        <!-- CTA Button -->
-        <div class="hidden sm:flex items-center gap-4">
-          <a
-            href="#boarding-pass"
-            class="fc-nav-cta relative group px-5 py-2.5 rounded-full overflow-hidden bg-brand-orange/10 text-xs font-cy font-bold tracking-wider uppercase text-white hover:text-black transition-colors duration-300"
-          >
-            <span
-              class="absolute inset-0 bg-brand-orange translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"
-            ></span>
-            <span class="relative z-10 font-bold flex items-center gap-2">
-              Boarding Pass
-              <svg
-                class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
-            </span>
-          </a>
-        </div>
+    <!-- CTA Button -->
+    <div class="hidden sm:flex items-center gap-4">
+      <a href="#boarding-pass" class="fc-nav-cta relative group px-5 py-2.5 rounded-full overflow-hidden bg-brand-orange/10 text-xs font-cy font-bold tracking-wider uppercase text-white hover:text-black transition-colors duration-300">
+        <span class="absolute inset-0 bg-brand-orange translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></span>
+        <span class="relative z-10 font-bold flex items-center gap-2">
+          Boarding Pass
+          <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+        </span>
+      </a>
+    </div>
 
-        <!-- Mobile Button -->
-        <button
-          id="mobile-menu-btn"
-          class="lg:hidden text-zinc-400 hover:text-white p-2"
-          aria-label="Menu"
-          aria-controls="mobile-menu"
-        >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-      </div>
+    <!-- Mobile Button -->
+    <button id="mobile-menu-btn" class="xl:hidden text-zinc-400 hover:text-white p-2" aria-label="Menu" aria-controls="mobile-menu" aria-expanded="false">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+    </button>
+  </div>
 
-      <!-- Mobile Dropdown -->
-      <div
-        id="mobile-menu"
-        class="fc-nav fc-nav--mobile hidden lg:hidden bg-brand-card/95 border-b border-brand-border px-6 py-6 flex flex-col gap-4"
-      >
-        <a href="#about" class="mobile-link">Our Journey</a>
-        <a href="#founder" class="mobile-link">Mike Konstanty &amp; On Board</a>
-        <a href="#values" class="mobile-link">Nasze wartości</a>
-        <a href="#numbers" class="mobile-link">Sezon 2026 w liczbach</a>
-        <a href="#packages" class="mobile-link">Pakiety sponsorskie</a>
-        <a href="#destinations" class="mobile-link">Next Destinations</a>
-        <a href="#atmosphere" class="mobile-link">Galeria</a>
-        <a href="#boarding-pass" class="mobile-link is-cta">Welcome on Board &rarr;</a>
-      </div>
-    </header>
-
-    <!-- ======================================================== -->
+  <!-- Mobile Dropdown -->
+  <div id="mobile-menu" class="fc-nav fc-nav--mobile hidden xl:hidden bg-brand-card/95 border-b border-brand-border px-6 py-6 flex flex-col gap-4">
+    <a href="index.html" class="mobile-link" data-nav="partners">Start</a>
+    <a href="journey.html" class="mobile-link" data-nav="journey">Our Journey</a>
+    <a href="team.html" class="mobile-link" data-nav="team">Team: Mike Konstanty &amp; On Board</a>
+    <a href="numbers.html" class="mobile-link" data-nav="numbers">Sezon 2026 w liczbach</a>
+    <a href="brand.html" class="mobile-link" data-nav="brand">Brand Opportunity</a>
+    <a href="index.html#packages" class="mobile-link">Pakiety sponsorskie</a>
+    <a href="#boarding-pass" class="mobile-link is-cta">Welcome on Board &rarr;</a>
+  </div>
+</header>

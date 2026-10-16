@@ -3,7 +3,12 @@
   <div class="relative z-10 mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
     <div class="fc-bento" data-gallery>
       <button type="button" class="fc-bento__item fc-bento__item--a" data-tilt><img src="images/image_13.jpg" alt="DJ w czapce gra dla tłumu pod sceną" loading="lazy"><span class="fc-glare" aria-hidden="true"></span></button>
-      <button type="button" class="fc-bento__item fc-bento__item--b" data-tilt><img src="images/cabin_crew.jpg" alt="Cabin crew First Class salutuje na scenie" loading="lazy"><span class="fc-glare" aria-hidden="true"></span></button>
+      <!-- Video tile (videos/gallery.mp4); shows the poster photo until the clip is uploaded -->
+      <button type="button" class="fc-bento__item fc-bento__item--b fc-bento__item--video" data-tilt aria-label="Wideo z First Class: scena w neonach">
+        <video muted loop playsinline preload="none" poster="images/image_6.jpg" data-autoplay-visible><source src="videos/gallery.mp4" type="video/mp4"></video>
+        <span class="fc-bento__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" /></svg>Video</span>
+        <span class="fc-glare" aria-hidden="true"></span>
+      </button>
       <button type="button" class="fc-bento__item fc-bento__item--c" data-tilt><img src="images/dj_energy.jpg" alt="Artysta przy konsolecie w pomarańczowym świetle" loading="lazy"><span class="fc-glare" aria-hidden="true"></span></button>
       <div class="fc-bento__title">
         <h2 class="fc-title"><span>Galeria</span> <em data-neon>zdjęć</em></h2>
@@ -18,10 +23,10 @@
     </div>
   </div>
 
-  <dialog class="fc-lightbox" aria-label="Podgląd zdjęcia">
-    <figure><img alt=""><figcaption></figcaption></figure>
+  <dialog class="fc-lightbox" aria-label="Podgląd galerii">
+    <figure><img alt=""><video controls playsinline hidden></video><figcaption></figcaption></figure>
     <button type="button" class="fc-lightbox__close" aria-label="Zamknij">✕</button>
-    <button type="button" class="fc-lightbox__nav fc-lightbox__nav--prev" aria-label="Poprzednie zdjęcie">←</button>
-    <button type="button" class="fc-lightbox__nav fc-lightbox__nav--next" aria-label="Następne zdjęcie">→</button>
+    <button type="button" class="fc-lightbox__nav fc-lightbox__nav--prev" aria-label="Poprzednie">←</button>
+    <button type="button" class="fc-lightbox__nav fc-lightbox__nav--next" aria-label="Następne">→</button>
   </dialog>
 </section>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pl" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team · First Class | Sezon 2027</title>
+    <meta name="description" content="Mike Konstanty, artyści On Board i to, jak First Class wygląda na miejscu." />
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tailwind-config.js"></script>
+
+    <!-- Google Fonts: Space Mono (small technical labels, as in the deck) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+
+  <body
+    data-page="team"
+    class="bg-brand-dark text-zinc-200 font-sans selection:bg-brand-orange selection:text-black antialiased relative overflow-x-hidden"
+  >
+    <!-- First Class plane symbol (traced from the deck), reused by sections via <use href="#fc-plane"> -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <symbol id="fc-plane" viewBox="-12 -12 706 674">
+        <path pathLength="1" d="M460 0 L320 24 L131 347 L0 378 L5 426 L11 431 L138 412 L356 650 L553 623 L560 615 L552 567 L542 562 L386 582 L231 404 L333 385 L571 355 L682 250 L633 205 L527 297 L220 341 L368 82 L471 57 Z" />
+      </symbol>
+    </svg>
+
+    <div data-section="sections/1-airlock.html"></div>
+    <div data-section="sections/2-header.html"></div>
+
+    <main class="fc-main relative w-full bg-brand-dark fc-main--offset">
+      <div data-section="sections/6-mike.html"></div>
+      <div data-section="sections/16-gallery-intro.html"></div>
+      <div data-section="sections/8-gallery.html"></div>
+      <div data-section="sections/13-boarding.html"></div>
+    </main>
+
+    <div data-section="sections/11-footer.html"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
