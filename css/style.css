@@ -163,6 +163,11 @@ img { max-width: 100%; }
 .fc-nav a:hover::after { transform: scaleX(1); transform-origin: left; }
 .fc-nav a[aria-current="page"] { color: var(--fc-orange); }
 .fc-nav a[aria-current="page"]::after { transform: scaleX(1); }
+/* Small laptops: the six page links stay on one line next to the logo and CTA */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .fc-nav a { font-size: .55rem; letter-spacing: .07em; }
+  .fc-nav-cta { padding-inline: 1rem !important; }
+}
 .fc-nav--mobile a { font-size: .72rem; }
 .fc-nav--mobile a::after { display: none; }
 .fc-nav--mobile .is-cta { padding-top: .5rem; color: var(--fc-orange); }
