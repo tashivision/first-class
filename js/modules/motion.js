@@ -42,9 +42,7 @@ export function initMotion() {
   wordReveal(gsap);
   route(gsap);
   flightLog(gsap);
-  filmstrip(gsap, ScrollTrigger);
   crewReveal(gsap);
-  valuesRunway(gsap);
   xrayScan(gsap);
   timeline(gsap);
   seasonMega(gsap);
@@ -91,7 +89,6 @@ function planeDrawings() {
 
 function classTriggers() {
   const groups = [
-    ['.fc-bars', 'is-on', .4],
     ['mark[data-mark]', 'is-on', .5],
     ['[data-stamp]', 'is-on', .9],
     ['.fc-stat-card', 'is-on', .45],
@@ -122,12 +119,13 @@ function counters(gsap) {
   }, { threshold: .6 });
 }
 
-/* ---------- Seamless marquees (brands under Mike) ---------- */
+/* ---------- Seamless marquees (brands under Mike, the film strip) ---------- */
 function marquees() {
   $$('[data-marquee]').forEach((track) => {
     const clone = [...track.children].map((child) => {
       const copy = child.cloneNode(true);
       copy.setAttribute('aria-hidden', 'true');
+      copy.querySelectorAll('img').forEach((img) => { img.alt = ''; });
       return copy;
     });
     track.append(...clone);
@@ -207,16 +205,31 @@ function gallery() {
   if (!root || !dialog || typeof dialog.showModal !== 'function') return;
   const items = $$('.fc-bento__item', root);
   const img = $('img', dialog);
+  const player = $('video', dialog);
   const caption = $('figcaption', dialog);
   let index = 0;
   const show = (i) => {
     index = (i + items.length) % items.length;
-    const source = $('img', items[index]);
-    img.src = source.currentSrc || source.src;
-    img.alt = source.alt;
-    caption.textContent = `${source.alt} · ${index + 1} / ${items.length}`;
+    const item = items[index];
+    const clip = $('video', item);
+    const label = clip ? item.getAttribute('aria-label') : $('img', item).alt;
+    img.hidden = Boolean(clip);
+    player.hidden = !clip;
+    if (clip) {
+      player.poster = clip.poster;
+      player.src = $('source', clip).src;
+      player.play().catch(() => {});
+    } else {
+      player.pause();
+      player.removeAttribute('src');
+      const source = $('img', item);
+      img.src = source.currentSrc || source.src;
+      img.alt = source.alt;
+    }
+    caption.textContent = `${label} · ${index + 1} / ${items.length}`;
   };
   items.forEach((item, i) => item.addEventListener('click', () => { show(i); dialog.showModal(); }));
+  dialog.addEventListener('close', () => player.pause());
   $('.fc-lightbox__close', dialog).addEventListener('click', () => dialog.close());
   $('.fc-lightbox__nav--prev', dialog).addEventListener('click', () => show(index - 1));
   $('.fc-lightbox__nav--next', dialog).addEventListener('click', () => show(index + 1));
@@ -298,29 +311,6 @@ function wordReveal(gsap) {
   });
 }
 
-function filmstrip(gsap, ScrollTrigger) {
-  const track = $('[data-filmstrip]');
-  if (!track) return;
-  [...track.children].forEach((child) => {
-    const copy = child.cloneNode(true);
-    copy.setAttribute('aria-hidden', 'true');
-    $('img', copy).alt = '';
-    track.append(copy);
-  });
-  const loop = gsap.to(track, { xPercent: -50, duration: 55, ease: 'none', repeat: -1 });
-  ScrollTrigger.create({
-    trigger: track,
-    start: 'top bottom',
-    end: 'bottom top',
-    onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
-    onUpdate: (self) => {
-      const boost = Math.min(6, 1 + Math.abs(self.getVelocity()) / 300);
-      loop.timeScale(boost * (self.direction < 0 ? -1 : 1));
-      gsap.to(loop, { timeScale: 1, duration: 1.2, ease: 'power2.out', overwrite: true });
-    },
-  });
-}
-
 function crewReveal(gsap) {
   const cards = $$('.fc-crew__card');
   if (!cards.length) return;
@@ -328,28 +318,6 @@ function crewReveal(gsap) {
     { clipPath: 'inset(100% 0% 0% 0% round 14px)' },
     { clipPath: 'inset(0% 0% 0% 0% round 14px)', duration: 1.1, stagger: .12, ease: 'power3.inOut', scrollTrigger: { trigger: cards[0].parentElement, start: 'top 80%' } });
   gsap.fromTo($$('.fc-crew__card img'), { scale: 1.3 }, { scale: 1.04, duration: 1.6, stagger: .12, ease: 'power3.out', scrollTrigger: { trigger: cards[0].parentElement, start: 'top 80%' } });
-}
-
-function valuesRunway(gsap) {
-  const rail = $('.fc-values-rail');
-  const track = rail?.querySelector('.fc-values-track');
-  const scenes = $$('.fc-value-scene', track || document);
-  if (!rail || !track || scenes.length < 2) return;
-  const mm = gsap.matchMedia();
-  mm.add('(min-width: 901px)', () => {
-    gsap.set(track, { display: 'flex', width: `${scenes.length * 100}vw` });
-    gsap.set(scenes, { flex: '0 0 100vw', width: '100vw' });
-    const progress = rail.querySelector('.fc-values-progress span');
-    const tl = gsap.timeline({
-      scrollTrigger: { trigger: rail, start: 'top top', end: () => `+=${window.innerWidth * (scenes.length - 1)}`, pin: true, scrub: 1, invalidateOnRefresh: true, anticipatePin: 1 },
-    });
-    tl.to(track, { x: () => -window.innerWidth * (scenes.length - 1), ease: 'none' }, 0).to(progress, { scaleX: 1, ease: 'none' }, 0);
-    scenes.forEach((scene) => {
-      gsap.fromTo(scene.querySelector('.fc-value-scene__img'), { xPercent: -8 }, { xPercent: 8, ease: 'none', scrollTrigger: { trigger: scene, containerAnimation: tl.getChildren()[0], start: 'left right', end: 'right left', scrub: true } });
-      gsap.fromTo(scene.querySelector('.fc-value-scene__word'), { xPercent: 30 }, { xPercent: -30, ease: 'none', scrollTrigger: { trigger: scene, containerAnimation: tl.getChildren()[0], start: 'left right', end: 'right left', scrub: true } });
-    });
-    return () => gsap.set([track, ...scenes], { clearProps: 'all' });
-  });
 }
 
 function xrayScan(gsap) {
@@ -366,7 +334,14 @@ function xrayScan(gsap) {
     xray.classList.toggle('is-cleared', done);
     status.textContent = done ? 'Zawartość: premium ✓' : `Skanowanie… ${Math.round(state.scan * 100)}%`;
   };
-  gsap.to(state, { scan: 1, ease: 'none', onUpdate: update, scrollTrigger: { trigger: xray, start: 'top 75%', end: 'bottom 45%', scrub: .6 } });
+  const scan = (scrollTrigger) => gsap.to(state, { scan: 1, ease: 'none', onUpdate: update, scrollTrigger });
+  gsap.matchMedia().add({ pin: '(min-width: 901px)', flow: '(max-width: 900px)' }, ({ conditions }) => {
+    const grid = xray.closest('.fc-inside__grid');
+    // Hold it still only when the whole block fits under the fixed header
+    const fits = grid && grid.offsetHeight <= window.innerHeight - 110;
+    if (conditions.pin && fits) scan({ trigger: grid, start: 'center center+=48', end: '+=110%', pin: true, scrub: .6, anticipatePin: 1, refreshPriority: 1 });
+    else scan({ trigger: xray, start: 'top 75%', end: 'bottom 45%', scrub: .6 });
+  });
   update();
 }
 
@@ -468,7 +443,7 @@ function spotlight() {
   });
 }
 
-/* ---------- Our Journey: layered collage depth, drifting ghost word, spinning badge ---------- */
+/* ---------- Our Journey: layered collage depth, spinning badge ---------- */
 function journeyDepth(gsap) {
   const section = $('.fc-journey');
   if (!section) return;
@@ -477,8 +452,6 @@ function journeyDepth(gsap) {
     const depth = Number(layer.dataset.depth);
     gsap.fromTo(layer, { yPercent: depth }, { yPercent: -depth, ease: 'none', scrollTrigger: st });
   });
-  const ghost = $('[data-ghost]', section);
-  if (ghost) gsap.fromTo(ghost, { xPercent: 0 }, { xPercent: -28, ease: 'none', scrollTrigger: st });
   const ring = $('.fc-journey__ring', section);
   if (ring) gsap.to(ring, { rotation: 300, ease: 'none', transformOrigin: '50% 50%', scrollTrigger: st });
   gsap.fromTo($$('.fc-journey__float', section), { clipPath: 'inset(0 0 100% 0 round 14px)' }, { clipPath: 'inset(0 0 0% 0 round 14px)', duration: 1.1, stagger: .18, ease: 'power3.inOut', scrollTrigger: { trigger: section, start: 'top 70%' } });
@@ -488,17 +461,12 @@ function journeyDepth(gsap) {
 function layoutRoute(root) {
   const stage = $('.fc-route__stage', root);
   const stops = $$('.fc-route__stops li', root);
-  const w = stage.clientWidth;
   const h = stage.clientHeight;
-  const vertical = w < 700;
-  const pts = stops.map((_, i) => {
-    if (vertical) return [i % 2 ? 22 : 8, 70 + i * ((h - 120) / (stops.length - 1))];
-    const pad = Math.max(80, w * .07);
-    return [pad + i * ((w - pad * 2) / (stops.length - 1)), h * .6 + (i % 2 ? 22 : -22)];
-  });
+  const pad = 70;
+  const pts = stops.map((_, i) => [i % 2 ? 30 : 12, pad + i * ((h - pad * 2) / (stops.length - 1))]);
   // Smooth curve through the stops (Catmull-Rom → cubic Bézier), with a short lead-in.
-  const first = vertical ? [pts[0][0], 0] : [0, pts[0][1] + 30];
-  const last = vertical ? [pts.at(-1)[0], h] : [w, pts.at(-1)[1] - 30];
+  const first = [pts[0][0], 0];
+  const last = [pts.at(-1)[0], h];
   const all = [first, ...pts, last];
   let d = `M${all[0][0]} ${all[0][1]}`;
   for (let i = 0; i < all.length - 1; i += 1) {
@@ -583,7 +551,7 @@ function route(gsap) {
     };
     gsap.to(state, {
       p: 1, ease: 'none', onUpdate: update,
-      scrollTrigger: { trigger: $('.fc-route__stage', root), start: 'top 85%', end: 'bottom 45%', scrub: .7, invalidateOnRefresh: true, onRefresh: () => { layoutRoute(root); update(); } },
+      scrollTrigger: { trigger: $('.fc-route__stage', root), start: 'top 62%', end: 'bottom 62%', scrub: .7, invalidateOnRefresh: true, onRefresh: () => { layoutRoute(root); update(); } },
     });
     update();
   });

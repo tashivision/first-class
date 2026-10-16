@@ -1,49 +1,62 @@
-// Section order follows the presentation (slides 1–19).
-const SECTIONS = [
-  ['1-airlock', 'sections/1-airlock.html'],
-  ['2-header', 'sections/2-header.html'],
-  ['3-hero', 'sections/3-hero.html'],
-  ['4-journey', 'sections/4-journey.html'],
-  ['4-space', 'sections/4-space.html'],
-  ['6-mike', 'sections/6-mike.html'],
-  ['7-values', 'sections/7-values.html'],
-  ['7-inside', 'sections/7-inside.html'],
-  ['7-numbers', 'sections/7-numbers.html'],
-  ['8-editorial', 'sections/8-editorial.html'],
-  ['9-brand', 'sections/9-brand.html'],
-  ['10-marketing', 'sections/10-marketing.html'],
-  ['10-packages', 'sections/10-packages.html'],
-  ['5-destinations', 'sections/5-destinations.html'],
-  ['14-season', 'sections/14-season.html'],
-  ['12-process', 'sections/12-process.html'],
-  ['16-gallery-intro', 'sections/16-gallery-intro.html'],
-  ['8-gallery', 'sections/8-gallery.html'],
-  ['13-boarding', 'sections/13-boarding.html'],
-  ['11-footer', 'sections/11-footer.html'],
-];
-
+// Every page lists its sections as <div data-section="sections/…html"> slots; they are fetched here.
+// The logo intro plays once per visit, not on every page.
 async function loadSections() {
-  const html = await Promise.all(SECTIONS.map(([id, url]) => fetch(url)
-    .then((res) => res.text())
-    .catch((e) => { console.error('Failed to load section', id, e); return ''; })));
-  SECTIONS.forEach(([id], i) => {
-    const slot = document.getElementById(id);
-    if (slot) slot.innerHTML = html[i];
-  });
+  const slots = [...document.querySelectorAll('[data-section]')];
+  let introSeen = false;
+  try { introSeen = sessionStorage.getItem('fc-intro') === '1'; } catch { /* storage blocked */ }
+  await Promise.all(slots.map(async (slot) => {
+    const url = slot.dataset.section;
+    if (url.includes('airlock')) {
+      if (introSeen) { slot.remove(); return; }
+      try { sessionStorage.setItem('fc-intro', '1'); } catch { /* storage blocked */ }
+    }
+    try {
+      slot.innerHTML = await (await fetch(url)).text();
+    } catch (e) {
+      console.error('Failed to load section', url, e);
+    }
+  }));
 }
 
 async function init() {
   document.documentElement.classList.add('fc-js');
   await loadSections();
+  markCurrentPage();
   enhanceButtons();
   initInteractions();
   initTabs();
+  initVideos();
 
   // Initialize effects after all HTML is loaded
-  await import('./modules/flight-cursor.js');
   await import('./modules/tubes.js');
   const { initMotion } = await import('./modules/motion.js');
   initMotion();
+  jumpToHash();
+}
+
+function markCurrentPage() {
+  const page = document.body.dataset.page;
+  document.querySelectorAll('[data-nav]').forEach((link) => {
+    if (link.dataset.nav === page) link.setAttribute('aria-current', 'page');
+  });
+}
+
+// Sections arrive after the browser has already tried to follow the #hash, so do it once they exist.
+function jumpToHash() {
+  const target = window.location.hash && document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+  if (!target) return;
+  requestAnimationFrame(() => target.scrollIntoView());
+}
+
+// Videos play only while on screen (and never with reduced motion). Until a clip is uploaded
+// its poster image stands in, so a missing file just looks like a photo.
+function initVideos() {
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const io = new IntersectionObserver((entries) => entries.forEach(({ target, isIntersecting }) => {
+    if (isIntersecting && !still) target.play().catch(() => {});
+    else target.pause();
+  }), { threshold: .2 });
+  document.querySelectorAll('video[data-autoplay-visible]').forEach((video) => io.observe(video));
 }
 
 /* Buttons: wrap the label so it can roll on hover (text stays readable without JS). */
@@ -113,7 +126,7 @@ function initInteractions() {
       value('form-message'),
     ].join('\n');
     const send = document.getElementById('ticket-send');
-    if (send) send.href = `mailto:contact@bamevents.pl?subject=${encodeURIComponent(`First Class 2027 — zgłoszenie partnera: ${brand}`)}&body=${encodeURIComponent(body)}`;
+    if (send) send.href = `mailto:contact@bamevents.pl?subject=${encodeURIComponent(`First Class 2027: zgłoszenie partnera ${brand}`)}&body=${encodeURIComponent(body)}`;
 
     const ticket = document.getElementById('ticket-result');
     ticket?.classList.remove('hidden', 'is-printing');
@@ -139,9 +152,9 @@ function initInteractions() {
       consent.focus();
       return;
     }
-    const subject = encodeURIComponent('First Class 2027 — lista pokładowa');
+    const subject = encodeURIComponent('First Class 2027: lista pokładowa');
     const body = encodeURIComponent(`Proszę o dodanie adresu ${email} do listy pokładowej First Class (sezon 2027).`);
-    if (status) status.textContent = 'Otwieramy Twoją pocztę z gotową wiadomością — wyślij ją, aby dołączyć do listy.';
+    if (status) status.textContent = 'Otwieramy Twoją pocztę z gotową wiadomością. Wyślij ją, aby dołączyć do listy.';
     window.location.href = `mailto:contact@bamevents.pl?subject=${subject}&body=${body}`;
   });
 
@@ -179,7 +192,7 @@ function drawBarcode(svg, seed) {
 function initTabs() {
   const motionAllowed = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const tabset = ({ buttons, panels, image, images, onSelect, autoplay }) => {
+  const tabset = ({ buttons, panels, visuals, image, images, onSelect, autoplay }) => {
     if (!buttons.length) return;
     let current = 0;
     let timer = 0;
@@ -201,6 +214,7 @@ function initTabs() {
         button.tabIndex = active ? 0 : -1;
       });
       panels.forEach((panel, i) => { panel.hidden = i !== index; });
+      visuals?.forEach((visual, i) => { visual.hidden = i !== index; });
       if (image && images?.[index]) {
         image.style.opacity = '0.2';
         window.setTimeout(() => {
@@ -281,13 +295,7 @@ function initTabs() {
   tabset({
     buttons: [...(brand?.querySelectorAll('[data-brand-step]') || [])],
     panels: [...(brand?.querySelectorAll('[data-brand-panel]') || [])],
-    image: brand?.querySelector('.fc-brand-feature__visual img'),
-    images: [
-      ['images/image_10.jpg', 'Samolot z napisem „If you\'re reading this we left” — viralowy content First Class'],
-      ['images/hangar_party.jpg', 'Scena i tłum w hangarze podczas First Class'],
-      ['images/cabin_crew.jpg', 'Cabin crew First Class podczas wydarzenia'],
-      ['images/logo_projection.jpg', 'Projekcja logo First Class po wydarzeniu'],
-    ],
+    visuals: [...(brand?.querySelectorAll('[data-brand-visual]') || [])],
     onSelect: (index) => {
       const line = brand?.querySelector('.fc-brand-path__line i');
       if (line) {
@@ -316,9 +324,9 @@ function initTabs() {
 
   // Partner process: a flight plan whose route runs through the three stops.
   const processCopy = [
-    ['01 / Rozmowa', 'Najpierw posłuchamy.', 'Poznajemy cele marki, kategorię i grupę odbiorców — i to, co dla nich będzie naprawdę warte zapamiętania.'],
-    ['02 / Koncepcja', 'Potem układamy lot.', 'Projektujemy zakres obecności dopasowany do partnera — od pojedynczej aktywacji po współpracę całosezonową.'],
-    ['03 / Odlot', 'I ruszamy razem.', 'Marka wchodzi na pokład wybranej edycji lub całego sezonu 2027 — i staje się częścią historii, którą goście zabierają ze sobą.'],
+    ['01 / Rozmowa', 'Najpierw posłuchamy.', 'Poznajemy cele marki, kategorię i grupę odbiorców oraz to, co dla nich będzie najbardziej warte zapamiętania.'],
+    ['02 / Koncepcja', 'Potem układamy lot.', 'Projektujemy zakres obecności dopasowany do partnera: od pojedynczej aktywacji po współpracę całosezonową.'],
+    ['03 / Odlot', 'I ruszamy razem.', 'Marka wchodzi na pokład wybranej edycji lub całego sezonu 2027 i staje się częścią historii, którą goście zabierają ze sobą.'],
   ];
   const plan = document.querySelector('[data-plan]');
   const map = plan?.querySelector('.fc-plan__map');
