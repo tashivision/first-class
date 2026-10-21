@@ -28,7 +28,6 @@ async function init() {
   initVideos();
 
   // Initialize effects after all HTML is loaded
-  await import('./modules/tubes.js');
   const { initMotion } = await import('./modules/motion.js');
   initMotion();
   jumpToHash();
@@ -192,7 +191,7 @@ function drawBarcode(svg, seed) {
 function initTabs() {
   const motionAllowed = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const tabset = ({ buttons, panels, visuals, image, images, onSelect, autoplay }) => {
+  const tabset = ({ buttons, panels, visuals, onSelect, autoplay }) => {
     if (!buttons.length) return;
     let current = 0;
     let timer = 0;
@@ -215,14 +214,6 @@ function initTabs() {
       });
       panels.forEach((panel, i) => { panel.hidden = i !== index; });
       visuals?.forEach((visual, i) => { visual.hidden = i !== index; });
-      if (image && images?.[index]) {
-        image.style.opacity = '0.2';
-        window.setTimeout(() => {
-          image.src = images[index][0];
-          image.alt = images[index][1];
-          requestAnimationFrame(() => { image.style.opacity = '1'; });
-        }, 140);
-      }
       onSelect?.(index);
       if (fromUser) stop();
       else restart();
@@ -311,14 +302,7 @@ function initTabs() {
   tabset({
     buttons: [...(marketing?.querySelectorAll('[data-marketing-step]') || [])],
     panels: [...(marketing?.querySelectorAll('[data-marketing-panel]') || [])],
-    image: marketing?.querySelector('.fc-marketing__image img'),
-    images: [
-      ['images/image_13.jpg', 'DJ za konsoletą podczas First Class'],
-      ['images/image_22.jpg', 'Artystka gra przy pomarańczowym ekranie'],
-      ['images/terrace_stage.jpg', 'Scena First Class na tle Warszawy'],
-      ['images/image_15.jpg', 'Scena i tłum w świetle reflektorów'],
-      ['images/dj_offwhite.jpg', 'Artysta i goście w czerwonym świetle'],
-    ],
+    visuals: [...(marketing?.querySelectorAll('[data-marketing-visual]') || [])],
     autoplay: marketingTabs ? { root: marketingTabs, delay: Number(marketingTabs.dataset.autoplay) || 7000 } : null,
   });
 

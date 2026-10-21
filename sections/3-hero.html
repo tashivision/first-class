@@ -3,19 +3,14 @@
         id="hero"
         class="fc-hero relative min-h-screen overflow-hidden aviation-grid"
       >
-        <!-- Индивидуальный Canvas секции Hero -->
-        <canvas
-          class="section-tubes-canvas absolute inset-0 w-full h-full block z-0"
-          style="touch-action: none"
-        ></canvas>
-
         <!-- Deck key visual: the neon First Class plane on the hangar wall -->
         <div class="fc-hero__bg" aria-hidden="true">
-          <img src="images/deck/neon-plane-wall.jpg" alt="" class="fc-hero__neon" />
+          <img src="/images/deck/neon-plane-wall.jpg" alt="" class="fc-hero__neon" />
+          <span class="fc-hero__smoke" aria-hidden="true"><i></i><i></i><i></i></span>
           <div class="fc-hero__shade"></div>
         </div>
 
-        <!-- Content Wrapper: pointer-events-none для свободного рисования мыши -->
+        <!-- Content Wrapper -->
         <div class="fc-hero__inner relative z-10 mx-auto max-w-7xl px-5 sm:px-8 pointer-events-none">
           <div class="fc-hero__chip pointer-events-auto">
             <span class="fc-hero__ping" aria-hidden="true"></span>
@@ -43,7 +38,7 @@
           </p>
 
           <div class="fc-hero__actions pointer-events-auto">
-            <a href="#packages" class="fc-btn fc-btn--primary" data-magnetic>Pakiety sponsorskie</a>
+            <a href="packages.html" class="fc-btn fc-btn--primary" data-magnetic>Pakiety sponsorskie</a>
             <a href="#destinations" class="fc-btn fc-btn--ghost" data-magnetic>Odkryj destynacje</a>
           </div>
         </div>
