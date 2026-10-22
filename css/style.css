@@ -641,6 +641,8 @@ img { max-width: 100%; }
 .fc-marketing__copy article h3 em { color: var(--fc-orange); font-style: normal; }
 .fc-marketing__copy article > p { max-width: 33rem; color: #b4b4bc; font-size: 1rem; line-height: 1.75; }
 .fc-marketing__copy article > small { display: block; margin-top: 1.6rem; color: var(--fc-orange); font: 600 .54rem/1.7 "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.fc-social-links a { color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255,115,0,.45); }
+.fc-social-links a:hover { color: #fff; text-decoration-color: currentColor; }
 .fc-marketing__proof { display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1.5rem; padding: 1.25rem 0; border-bottom: 1px solid rgba(255,255,255,.16); color: #fff; font-size: .82rem; font-weight: 700; }
 .fc-marketing__proof strong { margin-right: .3rem; color: var(--fc-orange); font: 700 1.05rem "Cy Grotesk V3 Wide", sans-serif; text-shadow: 0 0 14px rgba(255,115,0,.5); }
 .fc-marketing__proof i { height: 22px; border-left: 1px solid rgba(255,255,255,.19); }
