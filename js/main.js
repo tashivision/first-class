@@ -30,7 +30,18 @@ async function init() {
   // Initialize effects after all HTML is loaded
   const { initMotion } = await import('./modules/motion.js');
   initMotion();
-  jumpToHash();
+  jumpToHash(true);
+  window.addEventListener('hashchange', () => jumpToHash());
+  // Same-page anchors (e.g. Boarding Pass while already on packages) go through jumpToHash too
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href*="#"]');
+    const clean = (path) => path.replace(/\.html$/, '').replace(/\/index$/, '/');
+    if (!link || !link.hash || link.origin !== location.origin || clean(link.pathname) !== clean(location.pathname)) return;
+    if (!document.getElementById(decodeURIComponent(link.hash.slice(1)))) return;
+    event.preventDefault();
+    history.replaceState(null, '', link.hash);
+    jumpToHash();
+  });
 }
 
 function markCurrentPage() {
@@ -41,10 +52,23 @@ function markCurrentPage() {
 }
 
 // Sections arrive after the browser has already tried to follow the #hash, so do it once they exist.
-function jumpToHash() {
+function jumpToHash(initial) {
   const target = window.location.hash && document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
   if (!target) return;
-  requestAnimationFrame(() => target.scrollIntoView());
+  if (!target.hasAttribute('data-scroll-center')) {
+    requestAnimationFrame(() => target.scrollIntoView());
+    return;
+  }
+  // Tickets (Boarding Pass button) open centred in the space under the fixed header
+  const center = (behavior) => {
+    const header = document.querySelector('header')?.offsetHeight || 0;
+    const box = target.getBoundingClientRect();
+    const room = window.innerHeight - header;
+    const top = box.top + window.scrollY - header - Math.max(0, (room - box.height) / 2);
+    window.scrollTo({ top: Math.max(0, top), behavior });
+  };
+  requestAnimationFrame(() => center('smooth'));
+  if (initial === true) window.setTimeout(() => center('instant'), 600);
 }
 
 // Videos play only while on screen (and never with reduced motion). Until a clip is uploaded
