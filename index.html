@@ -3,23 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>First Class dla partnerów · Flight Mode On | Sezon 2027</title>
-    <meta name="description" content="First Class: warszawski cykl wydarzeń z muzyką house. Sezon 2027: sześć edycji, sześć destynacji, jedna marka. Partnerstwa dla marek premium." />
+    <title>First Class · Flight Mode On | Warszawa</title>
+    <meta name="description" content="First Class: warszawski cykl wydarzeń z muzyką house. Międzynarodowi artyści i nieoczywiste miejsca Warszawy. Zapisz się na listę pokładową sezonu 2027." />
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="js/tailwind-config.js"></script>
+    <script src="/js/tailwind-config.js"></script>
 
     <!-- Google Fonts: Space Mono (small technical labels, as in the deck) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
   </head>
 
   <body
-    data-page="partners"
+    data-page="guest"
     class="bg-brand-dark text-zinc-200 font-sans selection:bg-brand-orange selection:text-black antialiased relative overflow-x-hidden"
   >
     <!-- First Class plane symbol (traced from the deck), reused by sections via <use href="#fc-plane"> -->
@@ -29,21 +29,21 @@
       </symbol>
     </svg>
 
-    <div data-section="sections/1-airlock.html"></div>
-    <div data-section="sections/2-header.html"></div>
+    <div data-section="/sections/1-airlock.html"></div>
 
     <main class="fc-main relative w-full bg-brand-dark">
-      <div data-section="sections/3-hero.html"></div>
-      <div data-section="sections/7-inside.html"></div>
-      <div data-section="sections/5-destinations.html"></div>
-      <div data-section="sections/10-packages.html"></div>
-      <div data-section="sections/13-boarding.html"></div>
+      <div data-section="/sections/0-guest-hero.html"></div>
+      <div data-section="/sections/15-newsletter.html"></div>
     </main>
 
-    <div data-section="sections/11-footer.html"></div>
+    <footer class="fc-guest__foot">
+      <span>© 2027 First Class · Warszawa</span>
+      <a href="https://www.instagram.com/first.class.wrsw/" target="_blank" rel="noopener">Instagram</a>
+      <a href="mailto:contact@bamevents.pl">contact@bamevents.pl</a>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
-    <script type="module" src="js/main.js"></script>
+    <script type="module" src="/js/main.js"></script>
   </body>
 </html>

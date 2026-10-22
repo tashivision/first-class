@@ -180,7 +180,25 @@ img { max-width: 100%; }
 .fc-hero__neon { position: absolute; top: 0; bottom: 0; left: 30%; width: 76%; height: 100%; object-fit: cover; object-position: 50% 50%; }
 .fc-hero__shade { position: absolute; inset: 0; background: linear-gradient(90deg, #000 0%, #000 30%, rgba(0,0,0,.7) 42%, rgba(0,0,0,0) 62%), linear-gradient(0deg, #000 0%, transparent 30%); }
 .fc-js .fc-hero:not(.is-on) .fc-hero__neon { filter: brightness(.18) saturate(.4); }
-.fc-hero.is-on .fc-hero__neon { animation: fc-sign-on 1.6s both; }
+.fc-hero.is-on .fc-hero__neon { animation: fc-sign-on 1.6s both, fc-neon-hum 7s 1.6s steps(1, end) infinite; }
+/* After switching on, the sign keeps humming like real neon: short random-feeling dips */
+@keyframes fc-neon-hum {
+  0%, 100% { filter: brightness(1) saturate(1); }
+  41% { filter: brightness(.55) saturate(.7); }
+  42% { filter: brightness(1.08) saturate(1); }
+  44% { filter: brightness(.7) saturate(.8); }
+  45% { filter: brightness(1) saturate(1); }
+  78% { filter: brightness(.82) saturate(.9); }
+  79% { filter: brightness(1) saturate(1); }
+}
+/* Thin haze drifting in front of the sign */
+.fc-hero__smoke { position: absolute; inset: 0; overflow: hidden; pointer-events: none; mix-blend-mode: screen; }
+.fc-hero__smoke i { position: absolute; width: 70vw; height: 50vh; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,140,60,.16), rgba(255,115,0,.05) 55%, transparent); filter: blur(30px); animation: fc-smoke 26s ease-in-out infinite alternate; }
+.fc-hero__smoke i:nth-child(1) { left: 30%; top: 45%; }
+.fc-hero__smoke i:nth-child(2) { left: 50%; top: 10%; width: 55vw; animation-duration: 34s; animation-delay: -12s; opacity: .8; }
+.fc-hero__smoke i:nth-child(3) { left: 20%; top: 60%; width: 80vw; height: 40vh; background: radial-gradient(closest-side, rgba(255,255,255,.07), transparent); animation-duration: 40s; animation-delay: -20s; }
+@keyframes fc-smoke { from { transform: translate3d(-8%, 4%, 0) scale(1); } to { transform: translate3d(10%, -6%, 0) scale(1.25); } }
+@media (prefers-reduced-motion: reduce) { .fc-hero.is-on .fc-hero__neon { animation: none; } .fc-hero__smoke i { animation: none; } }
 @keyframes fc-sign-on {
   0%   { filter: brightness(.18) saturate(.4); animation-timing-function: steps(1, end); }
   10%  { filter: brightness(1.15) saturate(1); animation-timing-function: steps(1, end); }
@@ -216,7 +234,7 @@ img { max-width: 100%; }
 .fc-journey__grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(3rem, 6vw, 6rem); align-items: center; }
 .fc-journey__collage { position: relative; width: 100%; max-width: 640px; aspect-ratio: 1 / .98; }
 .fc-journey__main { position: absolute; inset: 6% 16% 16% 0; margin: 0; overflow: hidden; border: 1px solid rgba(255,115,0,.3); border-radius: 18px; box-shadow: 0 40px 80px -30px rgba(0,0,0,.95); }
-.fc-journey__main img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.16); }
+.fc-journey__main img { width: 100%; height: 100%; object-fit: cover; }
 .fc-journey__float { position: absolute; z-index: 1; margin: 0; overflow: hidden; border: 5px solid #111114; border-radius: 14px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.95); }
 .fc-journey__float img { width: 100%; height: 100%; object-fit: cover; }
 .fc-journey__float--a { top: 0; right: 0; width: 33%; aspect-ratio: 3 / 4; transform: rotate(5deg); }
@@ -265,6 +283,7 @@ img { max-width: 100%; }
 .fc-js .fc-route__stops li:not(.is-reached) figure { opacity: 0; transform: translateY(-50%) perspective(500px) rotateY(-75deg) scale(.8); }
 .fc-route__stops li.is-reached figure { transition: transform .75s cubic-bezier(.3,1.45,.5,1), opacity .35s; }
 .fc-route__stops figure > img { width: 100%; height: 100%; object-fit: cover; }
+.fc-route__stops figure.is-tall { aspect-ratio: 1 / 1; }
 .fc-route__stops li > b, .fc-route__stops li > small { position: absolute; left: calc(30px + clamp(120px, 12vw, 168px) + 1.1rem); width: max-content; max-width: 15rem; }
 .fc-route__stops li > b { top: -1.35rem; color: #fff; font: 700 clamp(.66rem, .95vw, .8rem) "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; transition: color .4s; }
 .fc-js .fc-route__stops li:not(.is-reached) > b { color: rgba(255,255,255,.38); }
@@ -327,8 +346,8 @@ img { max-width: 100%; }
 /* ================================================================== */
 .fc-night { padding: clamp(7rem, 14vw, 11rem) 0 0; background: #070708; }
 .fc-night__photo { position: absolute; inset: 0; overflow: hidden; }
-.fc-night__photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; transform: scale(1.22); transform-origin: 50% 35%; }
-.fc-night__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,7,8,.4) 0%, rgba(7,7,8,.3) 26%, rgba(7,7,8,.86) 58%, #070708 80%), linear-gradient(90deg, rgba(7,7,8,.75), transparent 62%); }
+.fc-night__photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.fc-night__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,7,8,.3) 0%, rgba(7,7,8,.15) 30%, rgba(7,7,8,.45) 70%, rgba(7,7,8,.85) 100%), linear-gradient(90deg, rgba(7,7,8,.55), transparent 55%); }
 .fc-night__body { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(2rem, 6vw, 6rem); align-items: start; margin-top: clamp(3rem, 7vw, 5.5rem); }
 .fc-night__text { position: sticky; top: 8rem; }
 .fc-night__side { margin-top: 1.6rem; }
@@ -379,8 +398,8 @@ img { max-width: 100%; }
 .fc-onboard__intro span { color: var(--fc-orange); }
 .fc-crew { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(.8rem, 1.6vw, 1.4rem); margin-top: clamp(3rem, 6vw, 4.5rem); }
 .fc-crew__card { position: relative; aspect-ratio: 2/3; margin: 0; overflow: hidden; border-radius: 14px; background: #141416; box-shadow: 0 30px 60px -30px rgba(0,0,0,.85); }
-.fc-crew__card img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.85); transform: scale(1.04); transition: transform 1s var(--ease-out), filter .5s; }
-.fc-crew__card:hover img { transform: scale(1.1); filter: saturate(1.12); }
+.fc-crew__card img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 25%; filter: saturate(.85); transform: scale(1); transition: transform 1s var(--ease-out), filter .5s; }
+.fc-crew__card:hover img { transform: scale(1.05); filter: saturate(1.12); }
 .fc-crew__card::after { content: ""; position: absolute; inset: 45% 0 0; z-index: 1; background: linear-gradient(transparent, rgba(0,0,0,.9)); }
 .fc-crew__card:hover { --lift: -8px; box-shadow: 0 40px 70px -30px rgba(255,115,0,.35); }
 .fc-crew__meta { position: absolute; z-index: 2; left: 1rem; right: 1rem; bottom: 1rem; display: flex; flex-direction: column; gap: .35rem; }
@@ -471,7 +490,8 @@ img { max-width: 100%; }
 .fc-brand-stats small { display: block; color: #8b8b93; font-size: .75rem; }
 .fc-reach__brand header span { display: block; margin-top: .3rem; color: #a1a1aa; font-size: .9rem; }
 .fc-reach__brand header strong { margin-right: .2rem; color: var(--fc-orange); font: 800 1.4rem "Cy Grotesk V3 Wide", sans-serif; }
-.fc-more { border-top: 1px solid var(--fc-line); overflow: hidden; }
+.fc-more { display: flex; align-items: center; min-height: max(100svh, 760px); border-top: 1px solid var(--fc-line); overflow: hidden; }
+.fc-more > .relative { width: 100%; }
 .fc-more__bg { position: absolute; inset: 0; }
 .fc-more__bg img { width: 100%; height: 100%; object-fit: cover; opacity: .5; }
 .fc-more__bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,8,10,.55), rgba(8,8,10,.82)); }
@@ -524,6 +544,15 @@ img { max-width: 100%; }
 .fc-brand-visual > img, .fc-brand-visual > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease-out); }
 .fc-brand-feature:hover .fc-brand-visual > img, .fc-brand-feature:hover .fc-brand-visual > video { transform: scale(1.035); }
 /* Digital: a 9:16 story on a blurred copy of itself, with the partner's logo slot at the bottom */
+/* On-site: three partner photos side by side, the last one cross-fades between two shots */
+.fc-brand-visual--onsite { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; background: #0b0b0d; }
+.fc-brand-visual--onsite > img, .fc-brand-visual__swap { position: relative !important; inset: auto; width: 100%; height: 100%; min-height: 0; object-fit: cover; }
+.fc-brand-visual__swap { overflow: hidden; }
+.fc-brand-visual__swap img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fc-brand-visual__swap img:last-child { animation: fc-swap 8s ease-in-out infinite; }
+@keyframes fc-swap { 0%, 40% { opacity: 0; } 50%, 90% { opacity: 1; } 100% { opacity: 0; } }
+/* After the event: a 9:16 reel centred over a blurred copy of itself */
+.fc-brand-visual--reel > video { left: 50%; right: auto; width: auto; height: 100%; aspect-ratio: 9 / 16; object-fit: cover; transform: translateX(-50%) !important; box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 30px 60px -20px #000; }
 .fc-brand-visual--story { display: grid; place-items: center; padding: 1.6rem 0; }
 .fc-brand-visual > .fc-brand-visual__backdrop { filter: blur(18px) brightness(.45) saturate(1.2); transform: scale(1.2) !important; }
 .fc-story { position: relative; z-index: 2; width: min(62%, 250px); aspect-ratio: 9 / 16; overflow: hidden; border: 1px solid rgba(255,255,255,.22); border-radius: 22px; background: #111; box-shadow: 0 30px 60px -20px rgba(0,0,0,.9), 0 0 0 6px rgba(10,10,12,.85), 0 0 50px -10px rgba(255,115,0,.35); }
@@ -543,10 +572,6 @@ img { max-width: 100%; }
 @keyframes fc-logo-slot { 50% { border-color: var(--fc-orange); box-shadow: 0 0 18px -2px rgba(255,115,0,.7); } }
 .fc-video-tag { position: absolute; z-index: 2; left: 1.2rem; bottom: 1.1rem; display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .75rem; border-radius: 999px; background: rgba(0,0,0,.55); backdrop-filter: blur(6px); color: #fff; font: 700 .55rem "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .14em; text-transform: uppercase; }
 .fc-video-tag i { width: 7px; height: 7px; border-radius: 50%; background: #ff3b3b; animation: fc-blink 1.2s steps(1) infinite; }
-/* Spinning vinyl record: it's a music brand */
-.fc-vinyl { position: absolute; z-index: 3; top: 1.3rem; right: 1.3rem; display: grid; place-items: center; width: clamp(104px, 10vw, 136px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, transparent 0 31%, rgba(255,255,255,.07) 31.5% 32%, transparent 32.5%), repeating-radial-gradient(circle, #0c0c0e 0 2px, #17171a 2px 3px), #0c0c0e; box-shadow: 0 0 0 1px rgba(255,115,0,.55), 0 14px 30px rgba(0,0,0,.6), 0 0 30px -6px rgba(255,115,0,.5); animation: fc-spin-slow 6s linear infinite; }
-.fc-vinyl::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 20deg, transparent 0 10%, rgba(255,255,255,.14) 14%, transparent 20% 55%, rgba(255,255,255,.1) 60%, transparent 66%); }
-.fc-vinyl__label { position: relative; width: 42%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #08080a 0 9%, var(--fc-orange) 10%); }
 @keyframes fc-spin-slow { to { transform: rotate(360deg); } }
 .fc-brand-feature__copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(1.5rem, 5vw, 4.5rem); background: linear-gradient(130deg, rgba(255,255,255,.025), transparent); }
 .fc-brand-feature__copy article > h3 { margin: 1rem 0; color: #fff; font: 800 clamp(2.1rem, 4vw, 3.8rem)/1.02 "Open Sauce One", sans-serif; letter-spacing: -.06em; }
@@ -584,9 +609,31 @@ img { max-width: 100%; }
 .fc-marketing__tabs button[aria-selected="true"]::after { transform: scaleX(1); background: var(--fc-orange); }
 .fc-marketing__stage { display: grid; grid-template-columns: 1.1fr .9fr; min-height: 420px; }
 .fc-marketing__image { position: relative; min-height: 420px; overflow: hidden; border-radius: 4px; background: #101014; }
-.fc-marketing__image::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 30%, rgba(8,8,10,.8)), linear-gradient(0deg, rgba(8,8,10,.75), transparent 50%); }
-.fc-marketing__image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .3s, transform .8s; }
-.fc-marketing__image > span, .fc-marketing__image > b { position: absolute; z-index: 1; left: 1.3rem; color: rgba(255,255,255,.7); font: 600 .55rem "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+.fc-marketing__image { background: radial-gradient(ellipse at 40% 45%, rgba(255,115,0,.22), transparent 60%), #0d0c0b; }
+.fc-marketing__image::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(0deg, rgba(8,8,10,.7), transparent 30%); }
+/* Per-tab mockups */
+.fc-mk { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; padding: 2.4rem 1.5rem 3.6rem; }
+.fc-mk:not([hidden]) { animation: fc-fade-in .45s ease both; }
+.fc-mk--photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; }
+.fc-phone { position: relative; z-index: 1; width: clamp(150px, 15vw, 200px); aspect-ratio: 9 / 19.5; overflow: hidden; border: 6px solid #1c1c20; border-radius: 26px; background: #000; box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 30px 60px -18px rgba(0,0,0,.95), 0 0 50px -16px rgba(255,115,0,.5); transform: rotate(-4deg); }
+.fc-phone img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.fc-phone--back { z-index: 0; margin-right: -2.4rem; opacity: .85; transform: rotate(7deg) translateY(.8rem) scale(.92); }
+.fc-phone--ad { display: flex; flex-direction: column; background: #0b0b0d; transform: rotate(-3deg); }
+.fc-phone--ad > img { flex: 1; min-height: 0; object-position: 50% 30%; }
+.fc-phone__ad-head { display: flex; align-items: center; gap: .4rem; padding: 1.4rem .6rem .5rem; color: #fff; font-size: .55rem; }
+.fc-phone__ad-head i { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #2a0c0c; }
+.fc-phone__ad-head svg { width: 12px; fill: none; stroke: var(--fc-orange); stroke-width: 50; }
+.fc-phone__ad-head small { margin-left: auto; color: #8b8b93; font-size: .5rem; }
+.fc-phone__ad-cta { display: flex; justify-content: space-between; padding: .55rem .7rem .9rem; background: var(--fc-orange); color: #000; font: 700 .6rem "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+/* Citylight on a pole, glowing at night */
+.fc-mk--outdoor { align-items: flex-end; padding-bottom: 0; background: linear-gradient(0deg, #050505 0 14%, transparent 14%); }
+.fc-citylight { position: relative; width: clamp(160px, 16vw, 215px); margin-bottom: 14%; padding: 8px; border-radius: 4px; background: #222226; box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 0 70px -6px rgba(255,180,140,.45), 0 40px 60px -30px #000; }
+.fc-citylight::after { content: ""; position: absolute; left: 50%; top: 100%; width: 10px; height: 200px; background: linear-gradient(#2a2a2e, #141416); transform: translateX(-50%); }
+.fc-citylight img { display: block; width: 100%; height: auto; filter: brightness(1.08); }
+/* Magazine lying slightly turned, with a page edge */
+.fc-magazine { position: relative; width: clamp(170px, 17vw, 235px); transform: rotate(5deg); box-shadow: 6px 6px 0 -2px #e9e6e0, 12px 14px 0 -4px #cfcac2, 0 40px 60px -20px #000; }
+.fc-magazine img { display: block; width: 100%; height: auto; }
+.fc-marketing__image > span, .fc-marketing__image > b { position: absolute; z-index: 2; left: 1.3rem; color: rgba(255,255,255,.7); font: 600 .55rem "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
 .fc-marketing__image > span { top: 1.3rem; }
 .fc-marketing__image > b { bottom: 1.2rem; color: #fff; font-size: 1.35rem; line-height: 1.15; }
 .fc-marketing__copy { display: flex; flex-direction: column; justify-content: center; padding: clamp(1.4rem, 4vw, 4rem); border-block: 1px solid rgba(255,255,255,.13); }
@@ -604,6 +651,23 @@ img { max-width: 100%; }
 /* 11 PAKIETY SPONSORSKIE — slide 13 (partner tickets)                  */
 /* ================================================================== */
 .fc-packages { background: radial-gradient(ellipse at 50% 0%, rgba(255,115,0,.1), transparent 52%), #08080a; }
+/* Packages page: header + three tickets fit in one screen on laptops */
+[data-page="packages"] .fc-packages { display: flex; align-items: center; min-height: calc(100svh - 6rem); padding: 2rem 0 2.5rem; border-top: 0; }
+[data-page="packages"] .fc-packages > div { width: 100%; }
+[data-page="packages"] .fc-packages .text-center { margin-bottom: 2rem; }
+[data-page="packages"] .fc-packages .fc-title { font-size: clamp(2.2rem, 4vw, 3.4rem); }
+[data-page="packages"] .fc-packages .fc-title > * { display: inline; }
+[data-page="packages"] .fc-packages .fc-title + p { margin-top: .6rem; }
+[data-page="packages"] .fc-ticket__class { font-size: clamp(1.4rem, 2.1vw, 1.9rem); }
+[data-page="packages"] .fc-ticket__main { padding: 1.2rem 1.4rem 1rem; }
+[data-page="packages"] .fc-ticket__route { margin: 1rem 0 .9rem; }
+[data-page="packages"] .fc-ticket__route b { font-size: 1.45rem; }
+[data-page="packages"] .fc-ticket__plus { margin-top: .8rem; }
+[data-page="packages"] .fc-ticket__perks { gap: .3rem; margin-top: .7rem; padding-top: .7rem; }
+[data-page="packages"] .fc-ticket__perks li { font-size: .84rem; }
+[data-page="packages"] .fc-ticket__stub { padding: 1rem 1.4rem 1.2rem; }
+[data-page="packages"] .fc-ticket__meta { margin-bottom: .6rem; }
+[data-page="packages"] .fc-barcode { display: none; }
 .fc-tickets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.4vw, 2rem); align-items: stretch; }
 .fc-ticket { --tk-bg: #111114; --tk-line: rgba(255,255,255,.12); --tk-accent: var(--fc-orange); position: relative; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; background: var(--tk-bg); box-shadow: 0 30px 60px -35px rgba(0,0,0,.95); }
 .fc-ticket:hover { --lift: -8px; box-shadow: 0 45px 80px -35px rgba(255,115,0,.3); }
@@ -702,7 +766,7 @@ img { max-width: 100%; }
 /* ================================================================== */
 .fc-season { background: #060504; }
 .fc-season__bg { position: absolute; inset: 0; overflow: hidden; }
-.fc-season__bg img { width: 100%; height: 120%; object-fit: cover; opacity: .6; }
+.fc-season__bg video { width: 100%; height: 100%; object-fit: cover; opacity: .7; }
 .fc-season__bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6,5,4,.5), rgba(6,5,4,.6) 40%, #060504 94%); }
 .fc-season__mega { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 .22em; margin: 0; font: 800 clamp(3.5rem, 13.5vw, 12.5rem)/.9 "Open Sauce One", sans-serif; letter-spacing: -.05em; text-align: center; will-change: letter-spacing, transform; }
 .fc-season__cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 4vw, 3.5rem); margin-top: clamp(3rem, 7vw, 5.5rem); text-align: center; }
@@ -713,6 +777,22 @@ img { max-width: 100%; }
 .fc-season__cols p { margin: 0 0 .8rem; color: rgba(240,240,244,.8); font-size: .96rem; line-height: 1.6; }
 .fc-season__foot { max-width: 46rem; margin: 3rem auto 0; color: #fff; font-weight: 700; text-align: center; }
 
+/* Guest home: full-screen background video */
+.fc-guest { display: flex; flex-direction: column; min-height: 100svh; background: #050507; }
+.fc-guest__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fc-guest__shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,5,7,.85), rgba(5,5,7,.35) 60%, rgba(5,5,7,.15)), linear-gradient(0deg, #050507 0%, transparent 35%); }
+.fc-guest__top { display: flex; width: 100%; align-items: center; justify-content: space-between; padding-top: 1.4rem; padding-bottom: 1.4rem; }
+.fc-guest__logo { height: 72px; width: auto; }
+.fc-guest__insta { color: #fff; font: 700 .7rem "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .12em; }
+.fc-guest__insta:hover { color: var(--fc-orange); }
+.fc-guest__inner { width: 100%; margin-top: auto; margin-bottom: auto; padding-bottom: 4rem; }
+.fc-guest__title { margin: 1.2rem 0 0; color: #fff; font: 800 clamp(3.5rem, 11vw, 10rem)/.86 "Open Sauce One", sans-serif; letter-spacing: -.055em; }
+.fc-guest__flight { margin: .6rem 0 0; font: 700 clamp(1.9rem, 4.6vw, 3.9rem)/1.05 "Open Sauce One", sans-serif; letter-spacing: -.03em; }
+.fc-guest__lead { max-width: 34rem; margin: 1.6rem 0 0; color: rgba(240,240,244,.86); font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.7; }
+.fc-guest__actions { display: flex; flex-wrap: wrap; gap: .9rem; margin-top: 2.2rem; }
+.fc-guest__foot { display: flex; flex-wrap: wrap; gap: .8rem 2rem; justify-content: center; padding: 2rem 1.25rem; border-top: 1px solid var(--fc-line); background: #08080a; color: #8b8b93; font: 600 .6rem "Cy Grotesk V3 Wide", sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+.fc-guest__foot a:hover { color: var(--fc-orange); }
+@media (max-width: 640px) { .fc-guest__logo { height: 56px; } .fc-guest__actions .fc-btn { width: 100%; justify-content: space-between; } }
 .fc-boardcall { background: linear-gradient(180deg, #060504, #0b0a0c); border-top: 1px solid var(--fc-line); }
 .fc-boardcall__grain { position: absolute; inset: 0; opacity: .14; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E"); mix-blend-mode: soft-light; pointer-events: none; }
 .fc-boardcall__grid { display: grid; grid-template-columns: .7fr 1.3fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
@@ -737,12 +817,10 @@ img { max-width: 100%; }
 .fc-process__background::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #05070b 0%, rgba(5,7,11,.8) 42%, rgba(5,7,11,.3)), linear-gradient(0deg, #05070b 2%, transparent 55%), linear-gradient(180deg, #05070b, transparent 18%); }
 .fc-process__intro { max-width: 58rem; }
 .fc-process__intro .fc-copy { max-width: 39rem; margin-top: 1.5rem; }
-.fc-process__journey { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; margin-top: 4rem; }
+.fc-process__journey { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(2rem, 6vw, 6rem); align-items: center; margin-top: 2.5rem; }
 .fc-process__detail { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; min-height: 250px; padding-left: clamp(1rem, 3vw, 3rem); border-left: 1px solid rgba(255,255,255,.18); }
 .fc-process__detail h3 { margin: .9rem 0; color: #fff; font: 800 clamp(2.2rem, 4vw, 3.8rem)/1.04 "Open Sauce One", sans-serif; letter-spacing: -.06em; }
 .fc-process__detail > p { max-width: 34rem; margin: 0 0 1.6rem; color: #b8b8c0; font-size: 1rem; line-height: 1.75; }
-.fc-process__seatbelts { margin: clamp(3rem, 6vw, 5rem) 0 0; color: #fff; font: 800 clamp(2rem, 4.6vw, 4rem)/1 "Open Sauce One", sans-serif; letter-spacing: -.045em; text-align: right; }
-.fc-process__seatbelts em { display: block; color: var(--fc-orange); font-style: normal; text-shadow: var(--fc-glow); }
 
 /* Flight plan: route through the three stops, plane flies to the selected step */
 .fc-plan { position: relative; padding: 1.1rem 1.3rem 1.2rem; border: 1px solid rgba(130,175,255,.2); border-radius: 20px; background: radial-gradient(ellipse at 35% 60%, rgba(255,115,0,.1), transparent 60%), linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 28px 28px, linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 28px 28px, rgba(5,7,11,.78); backdrop-filter: blur(6px); box-shadow: 0 40px 80px -40px rgba(0,0,0,.9), inset 0 0 50px rgba(70,130,255,.05); }
