@@ -33,6 +33,7 @@ export function initMotion() {
   departuresBoard();
   boardClock();
   gallery();
+  crewRing();
   if (finePointer && !reduceMotion) { tilt(); magnetic(); spotlight(); }
 
   if (!canScrub) { staticFallbacks(); return; }
@@ -198,21 +199,30 @@ function boardClock() {
   window.setInterval(tick, 15000);
 }
 
-/* ---------- Gallery lightbox ---------- */
-function gallery() {
-  const root = $('[data-gallery]');
-  const dialog = $('.fc-lightbox');
-  if (!root || !dialog || typeof dialog.showModal !== 'function') return;
-  const items = $$('.fc-bento__item', root);
+/* ---------- Lightbox: the photo mosaic and the film strip share one dialog ---------- */
+function lightbox() {
+  let dialog = $('.fc-lightbox');
+  if (!dialog) {
+    dialog = document.createElement('dialog');
+    dialog.className = 'fc-lightbox';
+    dialog.setAttribute('aria-label', 'Podgląd zdjęcia');
+    dialog.innerHTML = '<figure><img alt=""><video controls playsinline hidden></video><figcaption></figcaption></figure>'
+      + '<button type="button" class="fc-lightbox__close" aria-label="Zamknij">✕</button>'
+      + '<button type="button" class="fc-lightbox__nav fc-lightbox__nav--prev" aria-label="Poprzednie">←</button>'
+      + '<button type="button" class="fc-lightbox__nav fc-lightbox__nav--next" aria-label="Następne">→</button>';
+    document.body.append(dialog);
+  }
+  if (typeof dialog.showModal !== 'function') return null;
   const img = $('img', dialog);
   const player = $('video', dialog);
   const caption = $('figcaption', dialog);
+  const pad = (v) => String(v).padStart(2, '0');
+  let items = [];
   let index = 0;
   const show = (i) => {
     index = (i + items.length) % items.length;
     const item = items[index];
     const clip = $('video', item);
-    const label = clip ? item.getAttribute('aria-label') : $('img', item).alt;
     img.hidden = Boolean(clip);
     player.hidden = !clip;
     if (clip) {
@@ -226,9 +236,9 @@ function gallery() {
       img.src = source.currentSrc || source.src;
       img.alt = source.alt;
     }
-    caption.textContent = `${label} · ${index + 1} / ${items.length}`;
+    // Only a quiet counter under the photo, no descriptions
+    caption.textContent = `${pad(index + 1)} / ${pad(items.length)}`;
   };
-  items.forEach((item, i) => item.addEventListener('click', () => { show(i); dialog.showModal(); }));
   dialog.addEventListener('close', () => player.pause());
   $('.fc-lightbox__close', dialog).addEventListener('click', () => dialog.close());
   $('.fc-lightbox__nav--prev', dialog).addEventListener('click', () => show(index - 1));
@@ -237,6 +247,234 @@ function gallery() {
   dialog.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowRight') show(index + 1);
     if (event.key === 'ArrowLeft') show(index - 1);
+  });
+  return {
+    open(list, i) {
+      items = list;
+      show(i);
+      if (!dialog.open) dialog.showModal();
+    },
+  };
+}
+
+function gallery() {
+  const box = lightbox();
+  if (!box) return;
+  const root = $('[data-gallery]');
+  if (root) {
+    const items = $$('.fc-bento__item', root);
+    items.forEach((item, i) => item.addEventListener('click', () => box.open(items, i)));
+  }
+  filmstrip(box);
+}
+
+/* ---------- Film strip: hovering speeds it up, a click opens the frame ---------- */
+function filmstrip(box) {
+  $$('.fc-filmstrip').forEach((strip) => {
+    const track = $('.fc-filmstrip__track', strip);
+    if (!track) return;
+    const all = $$('figure', track);
+    const frames = all.filter((figure) => !figure.hasAttribute('aria-hidden'));   // the marquee copies are aria-hidden
+    if (!frames.length) return;
+    const open = (figure) => box.open(frames, all.indexOf(figure) % frames.length);
+    frames.forEach((figure) => {
+      figure.tabIndex = 0;
+      figure.setAttribute('role', 'button');
+      figure.setAttribute('aria-label', `Powiększ zdjęcie: ${$('img', figure)?.alt || ''}`);
+    });
+    track.addEventListener('click', (event) => {
+      const figure = event.target.closest('figure');
+      if (figure) open(figure);
+    });
+    track.addEventListener('keydown', (event) => {
+      if ((event.key !== 'Enter' && event.key !== ' ') || !event.target.matches('figure')) return;
+      event.preventDefault();
+      open(event.target);
+    });
+
+    if (!finePointer || reduceMotion) return;
+    const FAST = 5;
+    let rate = 1;
+    let target = 1;
+    let raf = 0;
+    const tick = () => {
+      const anim = track.getAnimations?.()[0];
+      rate += (target - rate) * .09;
+      if (Math.abs(target - rate) < .01) rate = target;
+      if (anim) anim.playbackRate = rate;
+      raf = rate === target ? 0 : requestAnimationFrame(tick);
+    };
+    const setRate = (value) => { target = value; if (!raf) raf = requestAnimationFrame(tick); };
+    strip.addEventListener('pointerenter', (event) => { if (event.pointerType === 'mouse') setRate(FAST); });
+    strip.addEventListener('pointerleave', () => setRate(1));
+  });
+}
+
+/* ---------- On Board: the artists sit on a ring that turns with the cursor ---------- */
+function crewRing() {
+  $$('[data-ring]').forEach((ring) => {
+    const stage = $('.fc-ring__stage', ring);
+    const items = $$('.fc-ring__item', stage);
+    const n = items.length;
+    if (n < 6) return;   // too few cards to close a circle: keep the plain row
+    const counter = $('[data-ring-count]', ring);
+    const TAU = Math.PI * 2;
+    const step = TAU / n;
+    const IDLE = reduceMotion ? 0 : .085;   // rad/s, the slow drift when nobody is steering
+    const MAX = 1.35;                        // rad/s with the cursor at the very edge
+    const pad = (v) => String(v).padStart(2, '0');
+    const wrap = (a) => a - TAU * Math.round(a / TAU);
+    let radius = 0;
+    let rot = 0;
+    let vel = IDLE;
+    let target = IDLE;
+    let dir = 1;
+    let goal = null;
+    let aim = 0;
+    let front = -1;
+    let holdUntil = 0;
+    let lockX = null;
+    let drag = null;
+    let moved = false;
+    let visible = false;
+    let raf = 0;
+    let last = 0;
+
+    ring.classList.add('is-ready');
+
+    const measure = () => {
+      const w = items[0].offsetWidth || 240;
+      radius = (w + Math.max(14, w * .09)) / (2 * Math.tan(Math.PI / n));
+    };
+    const render = () => {
+      let best = -2;
+      let lead = 0;
+      items.forEach((item, i) => {
+        const a = wrap(i * step + rot);
+        const c = Math.cos(a);
+        const o = Math.min(1, Math.max(0, (c - .04) / .3));
+        item.style.transform = `translate3d(${(Math.sin(a) * radius).toFixed(1)}px,0,${((c - 1) * radius).toFixed(1)}px) rotateY(${(a * 57.2958).toFixed(2)}deg)`;
+        item.style.opacity = o.toFixed(3);
+        item.style.visibility = o ? 'visible' : 'hidden';
+        item.style.zIndex = String(Math.round(c * 100) + 100);
+        item.style.setProperty('--dim', (1 - c).toFixed(3));
+        if (c > best) { best = c; lead = i; }
+      });
+      if (lead !== front) {
+        items[front]?.classList.remove('is-front');
+        items[lead].classList.add('is-front');
+        front = lead;
+        if (counter) counter.textContent = `${pad(lead + 1)} / ${pad(n)}`;
+      }
+    };
+    const frame = (now) => {
+      const dt = Math.min(.05, Math.max(0, (now - last) / 1000));
+      last = now;
+      if (!drag || !moved) {
+        if (goal !== null) {
+          rot += (goal - rot) * (1 - Math.exp(-dt * 8));
+          if (Math.abs(goal - rot) < .0015) { rot = goal; goal = null; vel = 0; holdUntil = now + 2600; }
+        } else {
+          const want = now < holdUntil ? 0 : target;
+          vel += (want - vel) * (1 - Math.exp(-dt * 3.6));
+          rot += vel * dt;
+        }
+      }
+      render();
+      raf = visible ? requestAnimationFrame(frame) : 0;
+    };
+    const go = (i) => {
+      aim = (i + n) % n;
+      goal = rot + wrap(-aim * step - rot);
+      target = 0;
+      if (reduceMotion) { rot = goal; goal = null; render(); }
+    };
+    // Cursor left of centre turns the ring one way, right the other; the middle is a rest zone.
+    const steer = (clientX) => {
+      const box = stage.getBoundingClientRect();
+      const nx = Math.max(-1, Math.min(1, (clientX - (box.left + box.width / 2)) / (box.width / 2)));
+      const dead = .14;
+      const m = Math.abs(nx);
+      if (m <= dead) { target = 0; return; }
+      dir = -Math.sign(nx);
+      target = dir * MAX * Math.pow((m - dead) / (1 - dead), 1.4);
+    };
+
+    stage.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      drag = { x: event.clientX, startX: event.clientX, t: performance.now(), id: event.pointerId };
+      moved = false;
+    });
+    stage.addEventListener('pointermove', (event) => {
+      if (drag) {
+        if (!moved && Math.abs(event.clientX - drag.startX) > 6) {
+          moved = true;
+          goal = null;
+          holdUntil = 0;
+          stage.classList.add('is-dragging');
+          try { stage.setPointerCapture(drag.id); } catch { /* pointer already gone */ }
+        }
+        if (moved) {
+          const now = performance.now();
+          const d = ((event.clientX - drag.x) / radius) * 1.15;
+          rot += d;
+          vel = vel * .5 + (d / Math.max(.008, (now - drag.t) / 1000)) * .5;
+          drag.x = event.clientX;
+          drag.t = now;
+        }
+        return;
+      }
+      if (event.pointerType !== 'mouse' || reduceMotion || goal !== null) return;
+      if (lockX !== null) {
+        if (Math.abs(event.clientX - lockX) < 28) return;
+        lockX = null;
+      }
+      holdUntil = 0;
+      steer(event.clientX);
+    });
+    const release = (event) => {
+      if (!drag) return;
+      stage.classList.remove('is-dragging');
+      if (moved) {
+        vel = Math.max(-3, Math.min(3, vel));
+        if (vel) dir = Math.sign(vel);
+        target = event.pointerType === 'mouse' ? 0 : dir * IDLE;
+        lockX = event.clientX;
+      }
+      drag = null;
+    };
+    stage.addEventListener('pointerup', release);
+    stage.addEventListener('pointercancel', release);
+    stage.addEventListener('pointerleave', () => {
+      if (drag) return;
+      lockX = null;
+      target = dir * IDLE;
+    });
+    // A click (not a drag) brings that artist to the front
+    stage.addEventListener('click', (event) => {
+      if (moved) { moved = false; return; }
+      const item = event.target.closest('.fc-ring__item');
+      if (!item) return;
+      const i = items.indexOf(item);
+      if (i === front) return;
+      go(i);
+      lockX = event.clientX;
+    });
+    const stepBy = (delta) => go((goal !== null ? aim : front) + delta);
+    $('[data-ring-prev]', ring)?.addEventListener('click', () => stepBy(-1));
+    $('[data-ring-next]', ring)?.addEventListener('click', () => stepBy(1));
+    ring.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') stepBy(-1);
+      if (event.key === 'ArrowRight') stepBy(1);
+    });
+
+    measure();
+    render();
+    new ResizeObserver(() => { measure(); render(); }).observe(stage);
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+    }, { rootMargin: '120px 0px' }).observe(ring);
   });
 }
 
@@ -314,10 +552,13 @@ function wordReveal(gsap) {
 function crewReveal(gsap) {
   const cards = $$('.fc-crew__card');
   if (!cards.length) return;
+  const trigger = cards[0].closest('.fc-ring') || cards[0].parentElement;
+  // On the ring the neighbours of the front card sit at both ends of the list, so open outwards from it
+  const stagger = (i) => Math.min(i, cards.length - i) * .1;
   gsap.fromTo(cards,
     { clipPath: 'inset(100% 0% 0% 0% round 14px)' },
-    { clipPath: 'inset(0% 0% 0% 0% round 14px)', duration: 1.1, stagger: .12, ease: 'power3.inOut', scrollTrigger: { trigger: cards[0].parentElement, start: 'top 80%' } });
-  gsap.fromTo($$('.fc-crew__card img'), { scale: 1.3 }, { scale: 1.04, duration: 1.6, stagger: .12, ease: 'power3.out', scrollTrigger: { trigger: cards[0].parentElement, start: 'top 80%' } });
+    { clipPath: 'inset(0% 0% 0% 0% round 14px)', duration: 1.1, stagger, ease: 'power3.inOut', scrollTrigger: { trigger, start: 'top 80%' } });
+  gsap.fromTo($$('.fc-crew__card img'), { scale: 1.3 }, { scale: 1.04, duration: 1.6, stagger, ease: 'power3.out', scrollTrigger: { trigger, start: 'top 80%' } });
 }
 
 function xrayScan(gsap) {
