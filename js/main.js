@@ -115,7 +115,16 @@ function initInteractions() {
   // Picking a ticket tears its stub and carries the choice into the check-in form.
   window.selectPackage = (tierName, source) => {
     const select = document.getElementById('form-tier');
-    if (select) select.value = tierName;
+    if (select) {
+      select.value = tierName;
+      // Make the carried-over choice visible in the form: highlight the field and say where it came from
+      const field = select.closest('.fc-field');
+      const note = document.getElementById('form-tier-note');
+      if (note) note.hidden = false;
+      field?.classList.remove('is-prefilled');
+      void field?.offsetWidth;
+      field?.classList.add('is-prefilled');
+    }
     const ticket = source?.closest('.fc-ticket');
     document.querySelectorAll('.fc-ticket.is-picked').forEach((t) => t.classList.remove('is-picked'));
     if (ticket) {
@@ -124,6 +133,20 @@ function initInteractions() {
     }
     window.setTimeout(() => document.getElementById('boarding-pass')?.scrollIntoView({ behavior: 'smooth' }), ticket ? 420 : 0);
   };
+
+  // The whole ticket is a target, not just its button
+  document.querySelectorAll('.fc-ticket[data-tier]').forEach((ticket) => {
+    ticket.addEventListener('click', (event) => {
+      if (event.target.closest('button, a')) return;
+      window.selectPackage(ticket.dataset.tier, ticket);
+    });
+  });
+  // Changing the package by hand drops the "carried over" note
+  document.getElementById('form-tier')?.addEventListener('change', (event) => {
+    event.target.closest('.fc-field')?.classList.remove('is-prefilled');
+    const note = document.getElementById('form-tier-note');
+    if (note) note.hidden = true;
+  });
 
   // Check-in form → printed boarding pass. Nothing is sent automatically: the pass offers
   // a prefilled e-mail so the partner request actually reaches the team.
