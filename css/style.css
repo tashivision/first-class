@@ -783,6 +783,8 @@ img { max-width: 100%; }
 .fc-dest__foot { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem 4rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--fc-line); }
 .fc-dest__foot p { margin: 0; color: rgba(240,240,244,.75); line-height: 1.7; }
 .fc-dest__foot b { color: #fff; }
+[data-page="guest"] .fc-dest__partners { display: none; }
+[data-page="guest"] .fc-dest__foot { grid-template-columns: 1fr; max-width: 52rem; }
 
 /* ================================================================== */
 /* 13 SEASON 2027 — slide 15  +  newsletter                             */
@@ -1094,6 +1096,7 @@ html[data-sky="night"] .fc-clouds { filter: brightness(.45) saturate(.5) hue-rot
 }
 @media (max-width: 640px) {
   .fc-hero { padding: 7.5rem 0 5.5rem; }
+  .fc-hero.aviation-grid { background-image: none; }   /* the grid reads as noise on a phone */
   .fc-hero__meta { gap: .5rem 1.2rem; font-size: .58rem; }
   .fc-hero__actions .fc-btn { width: 100%; justify-content: space-between; }
   .fc-founder__portrait { min-height: 440px; }
@@ -1178,12 +1181,19 @@ html[data-sky="night"] .fc-clouds { filter: brightness(.45) saturate(.5) hue-rot
 .fc-sponsors__label span { color: #b4b4bc; }
 .fc-sponsors__row { --h: clamp(1.6rem, 2.5vw, 2.2rem); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: clamp(1.6rem, 3vw, 2.4rem) clamp(1.4rem, 3vw, 2.6rem); margin: 0; padding: 0; list-style: none; }
 .fc-sponsors__row li { display: grid; place-items: center; }
+/* Desktop: the row drifts slowly. Each logo carries its own spacing so the doubled list loops at exactly -50%. */
+@media (min-width: 901px) {
+  .fc-sponsors__viewport { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent); }
+  .fc-sponsors__row[data-marquee] { flex-wrap: nowrap; justify-content: flex-start; gap: 0; width: max-content; padding-block: .3rem; animation: fc-marquee 75s linear infinite; will-change: transform; }
+  .fc-sponsors__row[data-marquee] li { flex: 0 0 auto; padding-right: clamp(3.5rem, 6.5vw, 5.75rem); }
+}
 .fc-sponsors__row img { display: block; width: auto; height: calc(var(--h) * var(--s, 1)); filter: brightness(0) invert(1); opacity: .62; transition: opacity .4s, transform .5s var(--ease-out); }
 .fc-sponsors__row li:hover img { opacity: 1; transform: translateY(-2px); }
 [data-page="packages"] .fc-sponsors { border-top: 0; background: transparent; }
 @media (max-width: 900px) {
   .fc-sponsors__row { display: grid; grid-template-columns: repeat(3, 1fr); justify-items: center; }
   .fc-sponsors__row { --h: 1.35rem; }
+  .fc-sponsors__row li[aria-hidden="true"] { display: none; }
 }
 
 /* ================================================================== */
@@ -1196,5 +1206,7 @@ html[data-sky="night"] .fc-clouds { filter: brightness(.45) saturate(.5) hue-rot
   .fc-window__frame { clip-path: none; }
   .fc-window__img { transform: none; }
   .fc-window__plane, .fc-window__copy { opacity: 1; transform: none; }
-  .fc-marquee__track, .fc-filmstrip__track, .fc-clouds__layer { animation: none !important; }
+  .fc-marquee__track, .fc-filmstrip__track, .fc-clouds__layer, .fc-sponsors__row { animation: none !important; }
+  .fc-sponsors__row[data-marquee] { flex-wrap: wrap; justify-content: center; width: auto; row-gap: 2rem; }
+  .fc-sponsors__row li[aria-hidden="true"] { display: none; }
 }

@@ -1,8 +1,10 @@
-<!-- DOTYCHCZASOWI PARTNERZY — logos of brands and media that have already flown with First Class -->
+<!-- DOTYCHCZASOWI PARTNERZY — logos of brands and media that have already flown with First Class.
+     Desktop: a slow marquee (the list is doubled in js/modules/motion.js). Phones: a still 3-column grid. -->
 <section id="partners" class="fc-sponsors" aria-labelledby="partners-title">
   <div class="mx-auto max-w-7xl px-5 sm:px-8">
     <p id="partners-title" class="fc-sponsors__label"><span>Dotychczasowi partnerzy</span></p>
-    <ul class="fc-sponsors__row">
+    <div class="fc-sponsors__viewport">
+    <ul class="fc-sponsors__row" data-marquee>
       <li style="--s:1.25"><img src="/images/sponsors/corona.svg" alt="Corona" decoding="async"></li>
       <li style="--s:1.45"><img src="/images/sponsors/grey-goose.svg" alt="Grey Goose" decoding="async"></li>
       <li style="--s:0.8"><img src="/images/sponsors/bat.svg" alt="British American Tobacco" decoding="async"></li>
@@ -13,5 +15,6 @@
       <li style="--s:1.25"><img src="/images/sponsors/kmag.svg" alt="K MAG" decoding="async"></li>
       <li style="--s:0.9"><img src="/images/sponsors/muno.svg" alt="Muno" decoding="async"></li>
     </ul>
+    </div>
   </div>
 </section>
